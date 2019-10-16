@@ -278,12 +278,8 @@ def _asdict(obj, encode_json=False):
     source) to support arbitrary Collection and Mapping types.
     """
     if _is_dataclass_instance(obj):
-        result = []
-        for field in fields(obj):
-            value = _asdict(getattr(obj, field.name), encode_json=encode_json)
-            result.append((field.name, value))
-        return _encode_overrides(dict(result), _user_overrides(obj),
-                                 encode_json=encode_json)
+        overridden = _encode_overrides(obj.__dict__, _user_overrides(obj),encode_json=encode_json)
+        return {k: _asdict(v, encode_json=encode_json) for k, v in overridden.items()}
     elif isinstance(obj, Mapping):
         return dict((_asdict(k, encode_json=encode_json),
                      _asdict(v, encode_json=encode_json)) for k, v in
